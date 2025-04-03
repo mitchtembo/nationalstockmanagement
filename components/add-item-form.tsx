@@ -6,6 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
+import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -19,25 +20,26 @@ import { cn } from "@/lib/utils"
 export function AddItemForm() {
   const router = useRouter()
   const [date, setDate] = useState<Date>()
+  const form = useForm()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (data: any) => {
     // In a real app, this would save the data to a database
     // For demo purposes, we'll just navigate back to the inventory page
     router.push("/inventory")
   }
 
   return (
-    <Form>
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField
+            control={form.control}
             name="name"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Item Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter item name" />
+                  <Input placeholder="Enter item name" {...field} />
                 </FormControl>
                 <FormDescription>The full name of the inventory item.</FormDescription>
                 <FormMessage />
@@ -46,11 +48,12 @@ export function AddItemForm() {
           />
 
           <FormField
+            control={form.control}
             name="category"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a category" />
@@ -71,12 +74,13 @@ export function AddItemForm() {
           />
 
           <FormField
+            control={form.control}
             name="quantity"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Quantity</FormLabel>
                 <FormControl>
-                  <Input type="number" min="0" placeholder="0" />
+                  <Input type="number" min="0" placeholder="0" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -84,11 +88,12 @@ export function AddItemForm() {
           />
 
           <FormField
+            control={form.control}
             name="unit"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Unit</FormLabel>
-                <Select>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a unit" />
@@ -110,8 +115,9 @@ export function AddItemForm() {
           />
 
           <FormField
+            control={form.control}
             name="expiryDate"
-            render={() => (
+            render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Expiry Date</FormLabel>
                 <Popover>
@@ -120,6 +126,7 @@ export function AddItemForm() {
                       <Button
                         variant={"outline"}
                         className={cn("w-full pl-3 text-left font-normal", !date && "text-muted-foreground")}
+                        onClick={(e) => e.preventDefault()}
                       >
                         {date ? format(date, "PPP") : <span>Pick a date</span>}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -127,7 +134,15 @@ export function AddItemForm() {
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+                    <Calendar 
+                      mode="single" 
+                      selected={date} 
+                      onSelect={(date) => {
+                        setDate(date);
+                        field.onChange(date);
+                      }} 
+                      initialFocus 
+                    />
                   </PopoverContent>
                 </Popover>
                 <FormDescription>Leave blank for items without an expiry date.</FormDescription>
@@ -137,11 +152,12 @@ export function AddItemForm() {
           />
 
           <FormField
+            control={form.control}
             name="location"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Storage Location</FormLabel>
-                <Select>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a location" />
@@ -164,12 +180,13 @@ export function AddItemForm() {
         </div>
 
         <FormField
+          control={form.control}
           name="notes"
-          render={() => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel>Notes</FormLabel>
               <FormControl>
-                <Textarea placeholder="Add any additional information about this item" className="min-h-[100px]" />
+                <Textarea placeholder="Add any additional information about this item" className="min-h-[100px]" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

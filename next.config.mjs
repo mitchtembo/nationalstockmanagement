@@ -16,11 +16,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  output: 'standalone',
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  // Skip SSG for pages that use client-side form functionality
+  unstable_excludePages: ['/inventory/add']
 }
 
 mergeConfig(nextConfig, userConfig)
